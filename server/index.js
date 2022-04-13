@@ -1,7 +1,10 @@
 let MovieList = require('./MovieList')
 let fetch = require('node-fetch')
 let cors = require('cors');
-const io = require('socket.io')(5000, {
+
+const PORT = process.env.PORT || 3000
+
+const io = require('socket.io')(PORT, {
     cors: {
         origin: "*",
     },
