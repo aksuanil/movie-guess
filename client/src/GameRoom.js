@@ -7,7 +7,7 @@ import 'tw-elements';
 let isFirstTime = true;
 let isFirst = true
 
-const socket = io('http://localhost:5000')
+const socket = io('https://damp-lowlands-54678.herokuapp.com/')
 socket.on('connect', () => {
     console.log(`You connected with id: ${socket.id}`)
 })
