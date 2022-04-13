@@ -1,21 +1,26 @@
 import React, { useState } from 'react'
 
 export default function PopUp(props) {
-    const handleRoomSubmit = (event) => {
-        props.parentCallback(event.target.roomId.value);
+
+    const handleJoinRoomSubmit = (event) => {
+        if (event.target.roomId.value !== null) {
+            props.parentCallback(event.target.roomId.value);
+            props.setTrigger(false);
+            event.preventDefault();
+            props.gameRoomCallback();
+        }
         props.setTrigger(false);
-        event.preventDefault();
     }
     const handleGameRoomSubmit = () => {
-        props.gameRoomCallback();
+        // props.gameRoomCallback();
     }
 
-    const handleNewRoomSubmit = () => {
+    const handleCreateRoomSubmit = () => {
         props.setTrigger(false);
         props.gameRoomCallback();
-        makeRoomId(8);
+        createRoomId(8);
     }
-    function makeRoomId(length) {
+    function createRoomId(length) {
         var result = '';
         var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         var charactersLength = characters.length;
@@ -32,14 +37,17 @@ export default function PopUp(props) {
             <div className='flex justify-center'>
                 <div className=' fixed top-36 w-96 h-96 bg-gray-200'>
                     <div className='flex flex-col items-center justify-center min-h-full gap-6'>
-                        <button onClick={handleNewRoomSubmit} className='border-black border-2 hover:bg-black hover:text-white mt-2 w-32'>Create Room</button>
+                        <label>Username:</label>
+                        <input type="text" id="username" name="username" required />
+                        <button onClick={handleCreateRoomSubmit} className='border-black border-2 hover:bg-black hover:text-white mt-2 w-32'>Create Room</button>
                         <h1>OR</h1>
 
-                        <form onSubmit={handleRoomSubmit} action="#" className='flex flex-col gap-1'>
+                        <form onSubmit={handleJoinRoomSubmit} action="#" className='flex flex-col gap-1'>
                             <label>Join a game with Room ID:</label>
                             <input
                                 name="roomId"
                                 placeholder="Enter Room ID"
+                                required
                             />
                             <button onClick={handleGameRoomSubmit} className='border-black border-2 hover:bg-black hover:text-white mt-2' type="submit" value="Join">Join</button>
                         </form>
