@@ -7,50 +7,58 @@ import 'tw-elements';
 let isFirstTime = true;
 let isFirst = true
 
-const socket = io('https://gentle-earth-71139.herokuapp.com/')
+const socket = io('http://localhost:5000/')
 socket.on('connect', () => {
     console.log(`You connected with id: ${socket.id}`)
 })
 
-
-
 function displayMessage(message, socketId, status) {
-    if (status === 'correct') {
+    if (status === 'correct' || status === 'timeout') {
         const div = document.createElement("div")
-        div.classList.add("text-green-800")
-        div.classList.add("font-bold")
+        debugger
+        if (status === 'timeout') {
+            div.classList.add("text-amber-700")
+            div.classList.add("font-bold")
+        }
+        if (status === 'correct') {
+            div.classList.add("text-green-800")
+            div.classList.add("font-bold")
+        }
         div.textContent = message
         document.getElementById("message-container").append(div)
         document.getElementById('message-container').scrollTop = document.getElementById('message-container').scrollHeight
-
     }
     else {
         const div = document.createElement("div")
         div.textContent = `${socketId === undefined ? "" : socketId === socket.id ? "Me" : socketId} :  ${message}`
         document.getElementById("message-container").append(div)
         document.getElementById('message-container').scrollTop = document.getElementById('message-container').scrollHeight
-
     }
 }
 
 // receive message from server
 socket.on('received-message', (receivedMessage, socketId, status) => {
     //message from server
-    displayMessage(receivedMessage, socketId, status)
+    displayMessage(receivedMessage, socketId, status = 'text')
     isFirst = true;
 })
-function Timer() {
-    const [timer, setTimer] = useState(60);
+function Timer(props) {
+    const { movieName, roomId, } = props;
+    const [timer, setTimer] = useState(30);
     useEffect(() => {
         timer > 0 && setTimeout(() => setTimer(timer - 1), 1000);
+        if (timer == 0) {
+            let isTimeout = true;
+            socket.emit('send-message', movieName, roomId, isTimeout)
+        }
     }, [timer]);
 
     return (
         <>
             <div className='flex flex-col items-center gap-2 mt-2'>
-                <svg xmlns="http://www.w3.org/2000/svg" class="animate-spin h-10 w-10 bg-transparent" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="bg-transparent" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg xmlns="http://www.w3.org/2000/svg" className="animate-spin h-10 w-10 bg-transparent" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="bg-transparent" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 <div>{timer}</div>
             </div>
@@ -59,7 +67,7 @@ function Timer() {
 }
 
 function GameRoom(props) {
-    const { open, roomId } = props;
+    const { open, roomId, } = props;
     const [message, setMessage] = useState("");
     // const [room, setRoom] = useState("");
     const [users, setUsers] = useState("");
@@ -68,14 +76,16 @@ function GameRoom(props) {
     const [isTimer, setTimer] = useState(false);
     const [movieName, setMovieName] = useState("");
 
-
     //TODO FIX Rendering too many times?
     // trigger if answer is correct from server
-    socket.on('correct-answer', (socketId) => {
+    socket.on('correct-answer', (socketId, isTimeout) => {
         setTimer(false)
         if (isFirst === true) {
             debugger
-            if (socketId === socket.id) {
+            if (isTimeout === true) {
+                displayMessage(`Time is up!`, socketId, 'timeout')
+            }
+            else if (socketId === socket.id) {
                 displayMessage(`You found the answer!`, socketId, 'correct')
             }
             else {
@@ -143,7 +153,7 @@ function GameRoom(props) {
                                     {isLoading
                                         ?
                                         <>
-                                            {movieName ? 'The movie was ' + movieName : "" }
+                                            {movieName ? 'The movie was ' + movieName : ""}
                                             <Loader />
                                         </>
                                         :
@@ -164,11 +174,11 @@ function GameRoom(props) {
                                                 type="text"
                                                 onChange={(e) => setMessage(e.target.value)}
                                             />
-                                            <input type="submit" value="Send" className='w-1/12 min-w-fit bg-slate-300 hover:bg-gray-700 text-gray-800 font-semibold hover:text-white py-2 px-4 border border-gray-900 rounded' />
+                                            <input type="submit" value="Send" className='w-1/12 min-w-fit bg-slate-300 hover:bg-gray-700 text-gray-800 font-semibold hover:text-white py-1 px-4 border border-gray-900 rounded' />
                                         </form>
                                     </div>
                                     <div className=' border-2 border-slate-800 mt-6 h-40 w-2/5 max-w-sm bg-slate-300'>
-                                        {isTimer ? <Timer /> : ""}
+                                        {isTimer ? <Timer movieName={movieName} roomId={roomId} /> : ""}
                                     </div>
                                 </div>
                             </div>

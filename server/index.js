@@ -2,7 +2,7 @@ let MovieList = require('./MovieList')
 let fetch = require('node-fetch')
 let cors = require('cors');
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 5000
 
 const io = require('socket.io')(PORT, {
     cors: {
@@ -48,9 +48,13 @@ async function getAllPlayers(roomId) {
 
 io.on('connection', socket => {
     console.log(socket.id)
-    socket.on('send-message', (message, room) => {
+    socket.on('send-message', (message, room, isTimeout) => {
         if (room === '') {
             socket.broadcast.emit('received-message', message, socket.id)
+        }
+        if(isTimeout === true){
+            io.in(room).emit('correct-answer', socket.id, isTimeout)
+            getMovieImg(room);
         }
         else {
             //check every received message if its correct
