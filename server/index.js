@@ -1,7 +1,6 @@
 let MovieList = require('./MovieList')
 let fetch = require('node-fetch')
 let cors = require('cors');
-
 const PORT = process.env.PORT || 5000
 
 const io = require('socket.io')(PORT, {

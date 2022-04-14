@@ -9,7 +9,7 @@ let isFirst = true
 
 const socket = io('http://localhost:5000/')
 socket.on('connect', () => {
-    console.log(`You connected with id: ${socket.id}`)
+    //TODO Assign nickname to socket.id
 })
 
 function displayMessage(message, socketId, status) {
@@ -75,13 +75,13 @@ function GameRoom(props) {
     const [isLoading, setLoading] = useState(false);
     const [isTimer, setTimer] = useState(false);
     const [movieName, setMovieName] = useState("");
+    console.log(movieName)
 
     //TODO FIX Rendering too many times?
     // trigger if answer is correct from server
     socket.on('correct-answer', (socketId, isTimeout) => {
         setTimer(false)
         if (isFirst === true) {
-            debugger
             if (isTimeout === true) {
                 displayMessage(`Time is up!`, socketId, 'timeout')
             }
@@ -107,7 +107,6 @@ function GameRoom(props) {
 
     socket.on('room-sockets', (roomUsers) => {
         setUsers(roomUsers);
-        console.log(roomUsers)
     })
 
     socket.on('data', (imgPath, room, movieName, isAdmin) => {
