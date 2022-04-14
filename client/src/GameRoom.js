@@ -7,7 +7,7 @@ import 'tw-elements';
 let isFirstTime = true;
 let isFirst = true
 
-const socket = io('http://localhost:5000/')
+const socket = io('https://morning-castle-74758.herokuapp.com/')
 socket.on('connect', () => {
     //TODO Assign nickname to socket.id
 })
