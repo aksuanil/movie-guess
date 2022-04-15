@@ -6,6 +6,7 @@ import 'tw-elements';
 
 let isFirstTime = true;
 let isFirst = true
+let userScore = [];
 
 const socket = io('https://morning-castle-74758.herokuapp.com/')
 socket.on('connect', () => {
@@ -15,7 +16,6 @@ socket.on('connect', () => {
 function displayMessage(message, socketId, status) {
     if (status === 'correct' || status === 'timeout') {
         const div = document.createElement("div")
-        debugger
         if (status === 'timeout') {
             div.classList.add("text-amber-700")
             div.classList.add("font-bold")
@@ -36,6 +36,21 @@ function displayMessage(message, socketId, status) {
     }
 }
 
+function addPoints(socketId, points) {
+    userScore.push({ "socketId": socketId, "points": points })
+}
+function showPoints(socketId) {
+    let socketScore = Object.values(userScore).filter((obj) => {
+        return obj.socketId == socketId
+    });
+    let result = socketScore.map(a => a.points);
+    const initialValue = 0;
+    const sumWithInitial = result.reduce(
+        (previousValue, currentValue) => previousValue + currentValue,
+        initialValue
+      );
+    return sumWithInitial;
+}
 // receive message from server
 socket.on('received-message', (receivedMessage, socketId, status) => {
     //message from server
@@ -78,7 +93,6 @@ function GameRoom(props) {
     console.log(movieName)
 
     //TODO FIX Rendering too many times?
-    // trigger if answer is correct from server
     socket.on('correct-answer', (socketId, isTimeout) => {
         setTimer(false)
         if (isFirst === true) {
@@ -87,9 +101,11 @@ function GameRoom(props) {
             }
             else if (socketId === socket.id) {
                 displayMessage(`You found the answer!`, socketId, 'correct')
+                addPoints(socketId, 1)
             }
             else {
                 displayMessage(`${socketId} found the answer :(`, socketId, 'correct')
+                addPoints(socketId, 1)
             }
             isFirst = false;
         }
@@ -140,10 +156,10 @@ function GameRoom(props) {
                         <div className=' text-green-800 font-bold'>
                         </div>
                         <div className='flex flex-col sm:flex-row '>
-                            <div className='flex border-2 order-2 sm:order-1 border-black h-4/5 w-1/4 max-w-sm	 m-8'>
-                                {users === "" ? "" : <ul>
+                            <div className='border-2 order-2 sm:order-1 border-black h-4/5 w-1/4 max-w-sm	 m-8'>
+                                {users === "" ? "" : <ul className='flex flex-col'>
                                     {users[0].map((item, index) => {
-                                        return <li key={index}>{item}</li>
+                                        return <li className='flex justify-between' key={index}><div>{item}</div> <div className='mr-3'> {showPoints(item)}</div></li>
                                     })}
                                 </ul>}
                             </div>

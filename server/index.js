@@ -9,14 +9,18 @@ const io = require('socket.io')(PORT, {
     },
 })
 
-let imageUrl = [];
+let lobbyData = [];
+let currentRoomData = [];
+
+let list = MovieList
 
 async function getMovieImg(roomId) {
     let imageData = null
     let movieData = null
 
-    const list = MovieList
     const movieId = list.MovieList[Math.floor(Math.random() * list.MovieList.length)];
+    let filteredList = list.MovieList.filter(e => e !== movieId)
+    list.MovieList = filteredList;
 
     let movieResponse = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=946d32131d3e345d057d1d753c5c8a06&language=en-US`);
     movieData = await movieResponse.json()
@@ -24,17 +28,28 @@ async function getMovieImg(roomId) {
     imageData = await imageResponse.json()
 
     imageData.backdrops.map((item) => {
-        if (item.width === 1920 && item.height === 1080) { imageUrl.push({"filePath": item.file_path, "currentRoom": roomId, "movieName": movieData.title}) }
+        // if (item.width === 1920 && item.height === 1080) 
+        { lobbyData.push({ "filePath": item.file_path, "currentRoom": roomId, "movieName": movieData.title }) }
     })
-    sendRoomImg(roomId, isAdmin = true);
+    let a = []
+    a = Object.values(lobbyData).filter((obj) => {
+        return obj.currentRoom == roomId && obj.movieName == lobbyData[lobbyData.length - 1].movieName
+    });
+    let currentData = a[Math.floor(Math.random() * a.length)]
+    storeCurrentRoomData(roomId, currentData)
+    sendCurrentRoomData(roomId, isAdmin = true);
 }
-
-function sendRoomImg(roomId, isAdmin) {
-    let a = Object.values(imageUrl).filter((obj) => {
-        return obj.currentRoom == roomId });
-    let lobbyData = a[a.length-1]
-    lobbyData?.movieName == undefined ? getMovieImg(roomId) : io.in(roomId).emit('data', lobbyData?.filePath, lobbyData?.currentRoom, lobbyData?.movieName, isAdmin);
-    console.log(lobbyData?.movieName)
+function storeCurrentRoomData(roomId, currentData) {
+    currentRoomData = currentRoomData.filter(e => e.roomId !== roomId)
+    currentRoomData.push({ "roomId": roomId, "currentData": currentData });
+}
+function getCurrentRoomData(roomId) {
+    return currentRoomData.find(element => element.roomId == roomId);
+}
+function sendCurrentRoomData(roomId, isAdmin) {
+    let currentRoomData = getCurrentRoomData(roomId);
+    io.in(roomId).emit('data', currentRoomData?.currentData.filePath, currentRoomData?.currentData.currentRoom, currentRoomData?.currentData.movieName, isAdmin);
+    console.log(currentRoomData?.currentData.movieName)
 }
 
 async function getAllPlayers(roomId) {
@@ -51,18 +66,18 @@ io.on('connection', socket => {
         if (room === '') {
             socket.broadcast.emit('received-message', message, socket.id)
         }
-        if(isTimeout === true){
+        if (isTimeout === true) {
             io.in(room).emit('correct-answer', socket.id, isTimeout)
             getMovieImg(room);
         }
         else {
             //check every received message if its correct
             io.to(room).emit('received-message', message, socket.id)
-            let roomUrl = Object.values(imageUrl).filter((obj) => {
+            let roomUrl = Object.values(lobbyData).filter((obj) => {
                 return obj.currentRoom == room
             });
-            let roomData = roomUrl[roomUrl.length-1]
-            if (message === roomData?.movieName) {
+            let roomData = roomUrl[roomUrl.length - 1]
+            if (message.toLowerCase() === roomData?.movieName.toLowerCase()) {
                 io.in(room).emit('correct-answer', socket.id)
                 getMovieImg(room);
                 console.log(message)
@@ -80,6 +95,6 @@ io.on('connection', socket => {
         socket.join(roomId)
         const connectedSockets = await getAllPlayers(roomId)
         io.in(roomId).emit('room-sockets', connectedSockets)
-        connectedSockets[0].length === 1 ? getMovieImg(roomId) : sendRoomImg(roomId, isAdmin = false);
+        connectedSockets[0].length === 1 ? getMovieImg(roomId) : sendCurrentRoomData(roomId, isAdmin = false);
     })
 })

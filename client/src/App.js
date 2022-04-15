@@ -1,7 +1,5 @@
-import { io } from 'socket.io-client'
-import React, { useState } from 'react'
+import React from 'react'
 import Homepage from './Homepage';
-import GameRoom from './GameRoom';
 
 function App() {
 
