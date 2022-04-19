@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import GameRoom from './GameRoom'
+import JoinModal from './JoinModal';
 import PopUp from './PopUp';
+import logo from './dist/logo.png'
 
 export default function Homepage() {
     const [open, setOpen] = useState(false);
@@ -10,20 +12,27 @@ export default function Homepage() {
     };
 
     const [roomId, setState] = useState("");
+    const [username, setUsername] = useState("");
+
     const handleCallback = (childData) => {
         setState(childData)
     }
-    console.log(roomId)
-    const [buttonPopup, setButtonPopup] = useState(false)
+    const handleUsernameCallback = (username) => {
+        setUsername(username)
+    }
+    const handleOnClickAlert = (username) => {
+        alert("Under Construction. Please use 'Play with Friends' and Create Room for solo experience.")
+    }
     return (
         <>
-            <div className='bg-gradient-to-tl from-slate-500 via-slate-400 to-slate-300 w-screen h-screen'>
+            <div className=' bg-zinc-800 w-screen h-screen text-white'>
                 <div id='button-container' className='flex flex-col gap-4 items-center justify-center min-h-screen bg-black text-white'>
-                    <button className=' w-24 border-2 border-white hover:bg-white hover:text-black' onClick={onClickHandle}>Play Solo</button>
-                    <button className=' w-36 border-2 border-white hover:bg-white hover:text-black' onClick={() => setButtonPopup(true)}>Play with Friends</button>
+                <img className='fixed top-28 p-10' src={logo}></img>
+                    <button className=' w-24 border-2 border-white hover:bg-white hover:text-black' onClick={handleOnClickAlert}>Play Solo</button>
+                    <JoinModal parentCallback={handleCallback} usernameCallback={handleUsernameCallback} gameRoomCallback={onClickHandle} />
+
                 </div>
-                <PopUp trigger={buttonPopup} setTrigger={setButtonPopup} parentCallback={handleCallback} gameRoomCallback={onClickHandle} />
-                <GameRoom open={open} roomId={roomId} />
+                <GameRoom open={open} roomId={roomId} username={username} />
             </div>
         </>
     )

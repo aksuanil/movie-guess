@@ -11,14 +11,13 @@ export default function Loader() {
     }, [counter]);
     return (
         <>
-            <div class="mt-16 flex items-center justify-center w-3/5">
+            <div class="mt-16 flex items-center justify-center">
                 <div class="fixed spinner-border animate-spin inline-block w-16 h-16 border-4 rounded-full" role="status">
                 </div>
                 <div class={"fixed spinner-grow inline-block w-12 h-12 bg-current rounded-full opacity-0 " + loaderColors[Math.floor(Math.random() * loaderColors.length)]} role="status">
                 </div>
             </div>
             <span class="mt-12 text-center">{counter} <br />Searching movies you haven't seen...</span>
-
         </>)
 }
 

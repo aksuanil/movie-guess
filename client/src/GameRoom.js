@@ -7,11 +7,7 @@ import 'tw-elements';
 let isFirstTime = true;
 let isFirst = true
 let userScore = [];
-
 const socket = io('https://morning-castle-74758.herokuapp.com/')
-socket.on('connect', () => {
-    //TODO Assign nickname to socket.id
-})
 
 function displayMessage(message, socketId, status) {
     if (status === 'correct' || status === 'timeout') {
@@ -82,7 +78,8 @@ function Timer(props) {
 }
 
 function GameRoom(props) {
-    const { open, roomId, } = props;
+    const { open, roomId, username } = props;
+    socket.emit("register-username", username);
     const [message, setMessage] = useState("");
     // const [room, setRoom] = useState("");
     const [users, setUsers] = useState("");
@@ -155,16 +152,16 @@ function GameRoom(props) {
                     <div className=''>
                         <div className=' text-green-800 font-bold'>
                         </div>
-                        <div className='flex flex-col sm:flex-row '>
-                            <div className='border-2 order-2 sm:order-1 border-black h-4/5 w-1/4 max-w-sm	 m-8'>
+                        <div className='flex flex-col sm:flex-row'>
+                            <div className='border-2 order-2 sm:order-1 border-black sm:w-1/4 h-4/5 m-8 '>
                                 {users === "" ? "" : <ul className='flex flex-col'>
-                                    {users[0].map((item, index) => {
+                                    {users.map((item, index) => {
                                         return <li className='flex justify-between' key={index}><div>{item}</div> <div className='mr-3'> {showPoints(item)}</div></li>
                                     })}
                                 </ul>}
                             </div>
-                            <div className='flex flex-col order-1 items-center mt-6 w-full h-full'>
-                                <div className='flex flex-col items-center w-4/5 sm:w-3/5 h-auto'>
+                            <div className='flex flex-col order-1 items-center pt-6 w-full sm:h-screen h-full'>
+                                <div className='flex flex-col items-center w-4/5 sm:w-3/5 h-1/4 sm:h-3/6'>
                                     {isLoading
                                         ?
                                         <>
@@ -172,27 +169,27 @@ function GameRoom(props) {
                                             <Loader />
                                         </>
                                         :
-                                        <div>
-                                            {img === undefined ? "" : <img className='' src={"https://www.themoviedb.org/t/p/original" + img}></img>}
-                                        </div>
+                                        <>
+                                            {img === undefined ? "" : <img className=' rounded-md border-2 border-zinc-400' src={"https://www.themoviedb.org/t/p/original" + img}></img>}
+                                        </>
                                     }
                                 </div>
-                                <div className='flex-row w-full flex mt-4 p-2 gap-2'>
+                                <div className='flex-row w-full flex mt-4 p-2 gap-2 bottom-0'>
                                     <div className='w-3/5 justify-start'>
                                         <h2>Room ID: {roomId}</h2>
-                                        <div id='message-container' className='border-2 border-slate-800 h-40 overflow-y-auto bg-slate-300'>
+                                        <div id='message-container' className='border-2 border-zinc-600 h-40 overflow-y-auto bg-zinc-700'>
                                         </div>
                                         <form className='flex flex-row' onSubmit={handleMessageSubmit}>
                                             <input
-                                                className='w-11/12 border-2 border-slate-800 bg-slate-300'
+                                                className='w-11/12 border-2 border-zinc-600 bg-zinc-700'
                                                 id='message-input'
                                                 type="text"
                                                 onChange={(e) => setMessage(e.target.value)}
                                             />
-                                            <input type="submit" value="Send" className='w-1/12 min-w-fit bg-slate-300 hover:bg-gray-700 text-gray-800 font-semibold hover:text-white py-1 px-4 border border-gray-900 rounded' />
+                                            <input type="submit" value="Send" className='w-1/12 min-w-fit bg-zinc-700 hover:bg-gray-700 text-gray-800 font-semibold hover:text-white py-1 px-4 border border-gray-900 rounded' />
                                         </form>
                                     </div>
-                                    <div className=' border-2 border-slate-800 mt-6 h-40 w-2/5 max-w-sm bg-slate-300'>
+                                    <div className=' border-2 border-slate-800 mt-6 h-40 w-2/5 max-w-sm bg-zinc-700'>
                                         {isTimer ? <Timer movieName={movieName} roomId={roomId} /> : ""}
                                     </div>
                                 </div>

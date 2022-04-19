@@ -11,8 +11,8 @@ const io = require('socket.io')(PORT, {
 
 let lobbyData = [];
 let currentRoomData = [];
-
-let list = MovieList
+let usernameData = [];
+let list = MovieList;
 
 async function getMovieImg(roomId) {
     let imageData = null
@@ -60,25 +60,37 @@ async function getAllPlayers(roomId) {
     return players;
 }
 
+async function getUsernames(roomId) {
+    let roomUsernames = usernameData.filter(e => e.roomId == roomId);
+    let usernameArray = roomUsernames.map(function(item) { return item["username"]; });
+
+    return usernameArray;
+}
+
 io.on('connection', socket => {
-    console.log(socket.id)
+    let username = "anonymous";
+
+    socket.on("register-username", newUsername => {
+        username = newUsername;
+    });
+
     socket.on('send-message', (message, room, isTimeout) => {
         if (room === '') {
-            socket.broadcast.emit('received-message', message, socket.id)
+            socket.broadcast.emit('received-message', message, username)
         }
         if (isTimeout === true) {
-            io.in(room).emit('correct-answer', socket.id, isTimeout)
+            io.in(room).emit('correct-answer', username, isTimeout)
             getMovieImg(room);
         }
         else {
             //check every received message if its correct
-            io.to(room).emit('received-message', message, socket.id)
+            io.to(room).emit('received-message', message, username )
             let roomUrl = Object.values(lobbyData).filter((obj) => {
                 return obj.currentRoom == room
             });
             let roomData = roomUrl[roomUrl.length - 1]
             if (message.toLowerCase() === roomData?.movieName.toLowerCase()) {
-                io.in(room).emit('correct-answer', socket.id)
+                io.in(room).emit('correct-answer', username)
                 getMovieImg(room);
                 console.log(message)
             }
@@ -93,8 +105,9 @@ io.on('connection', socket => {
 
     socket.on('join-room', async (roomId) => {
         socket.join(roomId)
-        const connectedSockets = await getAllPlayers(roomId)
+        usernameData.push({ "roomId": roomId, "username": username });
+        const connectedSockets = await getUsernames(roomId)
         io.in(roomId).emit('room-sockets', connectedSockets)
-        connectedSockets[0].length === 1 ? getMovieImg(roomId) : sendCurrentRoomData(roomId, isAdmin = false);
+        connectedSockets.length === 1 ? getMovieImg(roomId) : sendCurrentRoomData(roomId, isAdmin = false);
     })
 })
