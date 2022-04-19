@@ -79,7 +79,7 @@ io.on('connection', socket => {
             socket.broadcast.emit('received-message', message, username)
         }
         if (isTimeout === true) {
-            io.in(room).emit('correct-answer', username, isTimeout)
+            io.in(room).emit('correct-answer', username, isTimeout = true)
             getMovieImg(room);
         }
         else {
@@ -90,7 +90,7 @@ io.on('connection', socket => {
             });
             let roomData = roomUrl[roomUrl.length - 1]
             if (message.toLowerCase() === roomData?.movieName.toLowerCase()) {
-                io.in(room).emit('correct-answer', username)
+                io.in(room).emit('correct-answer', username, isTimeout = false)
                 getMovieImg(room);
                 console.log(message)
             }

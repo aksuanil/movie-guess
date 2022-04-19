@@ -7,7 +7,7 @@ import 'tw-elements';
 let isFirstTime = true;
 let isFirst = true
 let userScore = [];
-const socket = io('https://morning-castle-74758.herokuapp.com/')
+const socket = io('http://localhost:5000/')
 
 function displayMessage(message, socketId, status) {
     if (status === 'correct' || status === 'timeout') {
@@ -76,33 +76,53 @@ function Timer(props) {
         </>
     )
 }
+socket.on('data', async (imgPath, room, movieName, isAdmin) => {
+        window.setAdminFunc(imgPath, room, movieName, isAdmin);
+})
 
 function GameRoom(props) {
     const { open, roomId, username } = props;
+    window.userN = username;
     socket.emit("register-username", username);
     const [message, setMessage] = useState("");
-    // const [room, setRoom] = useState("");
     const [users, setUsers] = useState("");
     const [img, setImg] = useState("");
     const [isLoading, setLoading] = useState(false);
     const [isTimer, setTimer] = useState(false);
     const [movieName, setMovieName] = useState("");
-    console.log(movieName)
+
+    const [prevMovie, setPrevMovie] = useState("");
+    window.setAdminFunc = (imgPath, room, movieName, isAdmin) => setAdmin(imgPath, room, movieName, isAdmin);
+    function setAdmin(imgPath, room, movieName, isAdmin){
+        if (isAdmin) {
+            setTimeout(() => setPrevMovie(movieName), 6000);
+            setMovieName(movieName);
+            setLoading(true);
+            setTimeout(() => setImg(imgPath), 6000);
+            setTimeout(() => setLoading(false), 6000);
+            setTimeout(() => setTimer(true), 6000);
+        }
+        setImg(imgPath)
+    }
+
+    useEffect(() => {
+        console.log(movieName)
+      }, [movieName]);
 
     //TODO FIX Rendering too many times?
-    socket.on('correct-answer', (socketId, isTimeout) => {
+    socket.on('correct-answer', (user, isTimeout) => {
         setTimer(false)
         if (isFirst === true) {
             if (isTimeout === true) {
-                displayMessage(`Time is up!`, socketId, 'timeout')
+                displayMessage(`Time is up!`, user, 'timeout')
             }
-            else if (socketId === socket.id) {
-                displayMessage(`You found the answer!`, socketId, 'correct')
-                addPoints(socketId, 1)
+            else if (user === window.userN) {
+                displayMessage(`You found the answer!`, user, 'correct')
+                addPoints(user, 1)
             }
             else {
-                displayMessage(`${socketId} found the answer :(`, socketId, 'correct')
-                addPoints(socketId, 1)
+                displayMessage(`${user} found the answer :(`, user, 'correct')
+                addPoints(user, 1)
             }
             isFirst = false;
         }
@@ -121,17 +141,7 @@ function GameRoom(props) {
     socket.on('room-sockets', (roomUsers) => {
         setUsers(roomUsers);
     })
-
-    socket.on('data', (imgPath, room, movieName, isAdmin) => {
-        if (isAdmin) {
-            setTimeout(() => setMovieName(movieName), 7000);
-            setLoading(true);
-            setTimeout(() => setImg(imgPath), 6000);
-            setTimeout(() => setLoading(false), 6000);
-            setTimeout(() => setTimer(true), 6000);
-        }
-        setImg(imgPath)
-    })
+    
     const handleMessageSubmit = (event) => {
         event.preventDefault();
         if (message == "") {
@@ -148,7 +158,6 @@ function GameRoom(props) {
         <>
             {open && (
                 <>
-                    {/* <UsernamePopup trigger={buttonPopup} setTrigger={setButtonPopup} /> */}
                     <div className=''>
                         <div className=' text-green-800 font-bold'>
                         </div>
@@ -165,7 +174,7 @@ function GameRoom(props) {
                                     {isLoading
                                         ?
                                         <>
-                                            {movieName ? 'The movie was ' + movieName : ""}
+                                            {prevMovie ? 'The movie was ' + prevMovie : ""}
                                             <Loader />
                                         </>
                                         :
@@ -174,7 +183,7 @@ function GameRoom(props) {
                                         </>
                                     }
                                 </div>
-                                <div className='flex-row w-full flex mt-4 p-2 gap-2 bottom-0'>
+                                <div className='flex-row w-full flex mt-4 p-16 gap-2 bottom-0'>
                                     <div className='w-3/5 justify-start'>
                                         <h2>Room ID: {roomId}</h2>
                                         <div id='message-container' className='border-2 border-zinc-600 h-40 overflow-y-auto bg-zinc-700'>

@@ -31,9 +31,7 @@ export default function JoinModal(props) {
             setIsOpen(false);
             event.preventDefault();
             props.gameRoomCallback();
-            alert('A name was submitted: ' + this.state.value);
             const username = event.target.username.value;
-            alert(username)
         }
         // props.setTrigger(false);
     }
