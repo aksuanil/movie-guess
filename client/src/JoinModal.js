@@ -20,10 +20,6 @@ export default function JoinModal(props) {
         setIsOpen(false)
     }
 
-    function openModal() {
-        setIsOpen(true)
-    }
-
     const handleJoinRoomSubmit = (event) => {
         if (event.target.roomId.value !== null) {
             props.usernameCallback(event.target.username.value);
@@ -31,7 +27,6 @@ export default function JoinModal(props) {
             setIsOpen(false);
             event.preventDefault();
             props.gameRoomCallback();
-            const username = event.target.username.value;
         }
         // props.setTrigger(false);
     }

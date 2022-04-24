@@ -14,6 +14,16 @@ let currentRoomData = [];
 let usernameData = [];
 let list = MovieList;
 
+// let MovieNames = [];
+// const movies = MovieList
+// movies.MovieList.map (async (item) => {
+//     let movieName = await fetch(`https://api.themoviedb.org/3/movie/${item}?api_key=946d32131d3e345d057d1d753c5c8a06&language=en-US`);
+//     movieData = await movieName.json();
+//     MovieNames.push(movieData.title);
+// })
+// setTimeout(() => console.dir(MovieNames, {'maxArrayLength': null})
+// , 3000);
+
 async function getMovieImg(roomId) {
     let imageData = null
     let movieData = null

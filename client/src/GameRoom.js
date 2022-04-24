@@ -1,8 +1,9 @@
 import { io } from 'socket.io-client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import Loader from './Loader';
 import 'tw-elements';
-
+import { ReactSearchAutocomplete } from 'react-reusable-autocomplete'
+import movieNamesList from './assets/MovieNames.js'
 
 let isFirstTime = true;
 let isFirst = true
@@ -31,38 +32,31 @@ function displayMessage(message, socketId, status) {
         document.getElementById('message-container').scrollTop = document.getElementById('message-container').scrollHeight
     }
 }
-
 function addPoints(socketId, points) {
     userScore.push({ "socketId": socketId, "points": points })
 }
 function showPoints(socketId) {
     let socketScore = Object.values(userScore).filter((obj) => {
-        return obj.socketId == socketId
+        return obj.socketId = socketId
     });
     let result = socketScore.map(a => a.points);
     const initialValue = 0;
     const sumWithInitial = result.reduce(
         (previousValue, currentValue) => previousValue + currentValue,
         initialValue
-      );
+    );
     return sumWithInitial;
 }
-// receive message from server
-socket.on('received-message', (receivedMessage, socketId, status) => {
-    //message from server
-    displayMessage(receivedMessage, socketId, status = 'text')
-    isFirst = true;
-})
 function Timer(props) {
     const { movieName, roomId, } = props;
     const [timer, setTimer] = useState(30);
     useEffect(() => {
         timer > 0 && setTimeout(() => setTimer(timer - 1), 1000);
-        if (timer == 0) {
+        if (timer === 0) {
             let isTimeout = true;
             socket.emit('send-message', movieName, roomId, isTimeout)
         }
-    }, [timer]);
+    });
 
     return (
         <>
@@ -76,9 +70,18 @@ function Timer(props) {
         </>
     )
 }
-socket.on('data', async (imgPath, room, movieName, isAdmin) => {
-        window.setAdminFunc(imgPath, room, movieName, isAdmin);
+// receive message from server
+socket.on('received-message', (receivedMessage, socketId, status) => {
+    //message from server
+    displayMessage(receivedMessage, socketId, status = 'text')
+    isFirst = true;
 })
+socket.on('data', async (imgPath, room, movieName, isAdmin) => {
+    window.setAdminFunc(imgPath, room, movieName, isAdmin);
+})
+
+const indexed = movieNamesList.MovieList.map((item, id) => Object.assign(item, { id }))
+const movieNames = indexed;
 
 function GameRoom(props) {
     const { open, roomId, username } = props;
@@ -91,11 +94,16 @@ function GameRoom(props) {
     const [isTimer, setTimer] = useState(false);
     const [movieName, setMovieName] = useState("");
 
-    const [prevMovie, setPrevMovie] = useState("");
+    const prevMovieRef = useRef();
+    useEffect(() => {
+        prevMovieRef.current = movieName;
+    });
+    const prevMovie = prevMovieRef.current;
+
     window.setAdminFunc = (imgPath, room, movieName, isAdmin) => setAdmin(imgPath, room, movieName, isAdmin);
-    function setAdmin(imgPath, room, movieName, isAdmin){
+    function setAdmin(imgPath, room, movieName, isAdmin) {
         if (isAdmin) {
-            setTimeout(() => setPrevMovie(movieName), 6000);
+            // setTimeout(() => setPrevMovie(movieName), 6000);
             setMovieName(movieName);
             setLoading(true);
             setTimeout(() => setImg(imgPath), 6000);
@@ -104,10 +112,9 @@ function GameRoom(props) {
         }
         setImg(imgPath)
     }
-
     useEffect(() => {
         console.log(movieName)
-      }, [movieName]);
+    }, [movieName]);
 
     //TODO FIX Rendering too many times?
     socket.on('correct-answer', (user, isTimeout) => {
@@ -127,24 +134,17 @@ function GameRoom(props) {
             isFirst = false;
         }
     })
-
     if (roomId && isFirstTime) {
         // setRoom(roomId);
         isFirstTime = false;
         socket.emit('join-room', roomId)
     }
-
-    const exitClickHandler = () => {
-        socket.emit('leave-room', roomId)
-    }
-
     socket.on('room-sockets', (roomUsers) => {
         setUsers(roomUsers);
     })
-    
     const handleMessageSubmit = (event) => {
         event.preventDefault();
-        if (message == "") {
+        if (message === "") {
 
         } else {
             socket.emit('send-message', message, roomId)
@@ -153,7 +153,17 @@ function GameRoom(props) {
             setMessage("")
         }
     }
+    const handleOnSelect = (item) => {
+        setMessage(item.name)
+    };
 
+    const formatResult = (item) => {
+        return (
+            <>
+                <span style={{ display: 'block', textAlign: 'left'}}>{item}</span>
+            </>
+        )
+    }
     return (
         <>
             {open && (
@@ -161,16 +171,16 @@ function GameRoom(props) {
                     <div className=''>
                         <div className=' text-green-800 font-bold'>
                         </div>
-                        <div className='flex flex-col sm:flex-row'>
-                            <div className='border-2 order-2 sm:order-1 border-black sm:w-1/4 h-4/5 m-8 '>
+                        <div className='flex flex-col sm:flex-row '>
+                            <div className='border-2 order-2 sm:order-1 border-zinc-600 sm:w-1/4 h-4/5 mx-4 sm:m-8 px-4 py-2  font-semibold'>
                                 {users === "" ? "" : <ul className='flex flex-col'>
                                     {users.map((item, index) => {
-                                        return <li className='flex justify-between' key={index}><div>{item}</div> <div className='mr-3'> {showPoints(item)}</div></li>
+                                        return <li className='flex justify-between' key={index}><div className='underline underline-offset-1 tracking-wide'>{item}</div> <div className='mr-3 text-green-500'> {showPoints(item)}</div></li>
                                     })}
                                 </ul>}
                             </div>
-                            <div className='flex flex-col order-1 items-center pt-6 w-full sm:h-screen h-full'>
-                                <div className='flex flex-col items-center w-4/5 sm:w-3/5 h-1/4 sm:h-3/6'>
+                            <div className='flex flex-col order-1 items-center pt-6 w-full h-full'>
+                                <div className='flex-col items-center w-4/5 sm:w-3/5 h-1/4 sm:h-3/6'>
                                     {isLoading
                                         ?
                                         <>
@@ -179,27 +189,51 @@ function GameRoom(props) {
                                         </>
                                         :
                                         <>
-                                            {img === undefined ? "" : <img className=' rounded-md border-2 border-zinc-400' src={"https://www.themoviedb.org/t/p/original" + img}></img>}
+                                            {img === undefined ? "" : <img className=' rounded-md border-2 border-zinc-400' src={"https://www.themoviedb.org/t/p/original" + img} alt=""></img>}
                                         </>
                                     }
                                 </div>
-                                <div className='flex-row w-full flex mt-4 p-16 gap-2 bottom-0'>
-                                    <div className='w-3/5 justify-start'>
+                                <div className='flex-col sm:flex-row w-full sm:w-4/5 flex p-4 sm:p-16 gap-2 sm:fixed sm:bottom-14'>
+                                    <div className='w-full sm:w-3/5 justify-start'>
                                         <h2>Room ID: {roomId}</h2>
                                         <div id='message-container' className='border-2 border-zinc-600 h-40 overflow-y-auto bg-zinc-700'>
                                         </div>
                                         <form className='flex flex-row' onSubmit={handleMessageSubmit}>
-                                            <input
-                                                className='w-11/12 border-2 border-zinc-600 bg-zinc-700'
-                                                id='message-input'
-                                                type="text"
+                                            <div className='w-11/12 border-2 border-zinc-600 bg-zinc-700'
                                                 onChange={(e) => setMessage(e.target.value)}
-                                            />
-                                            <input type="submit" value="Send" className='w-1/12 min-w-fit bg-zinc-700 hover:bg-gray-700 text-gray-800 font-semibold hover:text-white py-1 px-4 border border-gray-900 rounded' />
+                                                id='message-input'
+                                                type="text">
+                                                <ReactSearchAutocomplete
+                                                    inputSearchString={message}
+                                                    items={movieNames}
+                                                    onSelect={handleOnSelect}
+                                                    // onSearch={handleOnSearch}
+                                                    // onHover={handleOnHover}
+                                                    // onFocus={handleOnFocus}
+                                                    // formatResult={formatResult}
+                                                    showIcon={false}
+                                                    maxResults={3}
+                                                    styling={{
+                                                        height: "34px",
+                                                        border: "1px solid black",
+                                                        borderRadius: "4px",
+                                                        backgroundColor: "gray-500",
+                                                        hoverBackgroundColor: "gray",
+                                                        color: "black",
+                                                        fontSize: "14px",
+                                                        iconColor: "black",
+                                                        lineColor: "black",
+                                                        placeholderColor: "black",
+                                                        clearIconMargin: "3px 8px 0 0",
+                                                        zIndex: 2,
+                                                    }}
+                                                />
+                                            </div>
+                                            <input type="submit" value="Send" className='w-1/12 min-w-fit bg-zinc-700 hover:bg-gray-700 text-gray-300 font-semibold hover:text-white py-1 px-4 border border-gray-900 rounded' />
                                         </form>
                                     </div>
-                                    <div className=' border-2 border-slate-800 mt-6 h-40 w-2/5 max-w-sm bg-zinc-700'>
-                                        {isTimer ? <Timer movieName={movieName} roomId={roomId} /> : ""}
+                                    <div className=' border-2 border-slate-800 mt-6 h-24 sm:h-40 w-full sm:w-2/5 max-w-sm bg-zinc-700'>
+                                        {isTimer ? <Timer movieName={movieName} roomId={roomId} /> : <p className='flex justify-center'>Get ready for next movie!</p>}
                                     </div>
                                 </div>
                             </div>

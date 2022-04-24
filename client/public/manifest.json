@@ -1,0 +1,14 @@
+{
+    "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+    "name": "MovieGuess",
+    "short_name": "MovieGuess",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#fff",
+    "description": "A movie guess app.",
+    "icons": [{
+      "src": "favicon.ico",
+      "sizes": "48x48",
+      "type": "ico"
+    }]
+  }

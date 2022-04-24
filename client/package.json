@@ -10,6 +10,7 @@
     "async": ">=3.2.2",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "react-reusable-autocomplete": "^1.0.1",
     "react-scripts": "^5.0.0",
     "socket.io-client": "^4.4.1",
     "tailwindcss": "^3.0.23",
