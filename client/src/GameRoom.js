@@ -180,7 +180,7 @@ function GameRoom(props) {
                                 </ul>}
                             </div>
                             <div className='flex flex-col order-1 items-center pt-6 w-full h-full'>
-                                <div className='flex-col items-center w-4/5 sm:w-3/5 h-1/4 sm:h-3/6'>
+                                <div className='flex flex-col items-center w-4/5 sm:w-3/5 h-1/4 sm:h-3/6'>
                                     {isLoading
                                         ?
                                         <>
