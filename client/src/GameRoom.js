@@ -51,7 +51,7 @@ function showPoints(socketId) {
 }
 function Timer(props) {
     const { movieName, roomId, } = props;
-    const [timer, setTimer] = useState(5);
+    const [timer, setTimer] = useState(30);
     useEffect(() => {
         timer > 0 && setTimeout(() => setTimer(timer - 1), 1000);
         if (timer === 0) {
