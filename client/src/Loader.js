@@ -9,13 +9,13 @@ export default function Loader() {
     }, [counter]);
     return (
         <>
-            <div className="mt-16 flex items-center justify-center">
-                <div className="fixed spinner-border animate-spin inline-block w-16 h-16 border-4 rounded-full" role="status">
+            <div className="mt-4 sm:mt-16 flex items-center justify-center">
+                <div className="spinner-border animate-spin inline-block w-16 h-16 border-4 rounded-full" role="status">
                 </div>
-                <div className={"fixed spinner-grow inline-block w-12 h-12 bg-current rounded-full opacity-0 " + loaderColors[Math.floor(Math.random() * loaderColors.length)]} role="status">
+                <div className={"absolute spinner-grow inline-block w-12 h-12 bg-current rounded-full opacity-0 " + loaderColors[Math.floor(Math.random() * loaderColors.length)]} role="status">
                 </div>
             </div>
-            <span className="mt-12 text-center">{counter} <br />Searching movies you haven't seen...</span>
+            <span className="mt-4 sm:mt-12 text-center">{counter} <br />Searching movies you haven't seen...</span>
         </>)
 }
 

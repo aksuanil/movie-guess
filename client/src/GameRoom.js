@@ -4,6 +4,8 @@ import Loader from './Loader';
 import 'tw-elements';
 import { ReactSearchAutocomplete } from 'react-reusable-autocomplete'
 import movieNamesList from './assets/MovieNames.js'
+import { Popover } from '@headlessui/react'
+
 
 let isFirstTime = true;
 let isFirst = true
@@ -49,7 +51,7 @@ function showPoints(socketId) {
 }
 function Timer(props) {
     const { movieName, roomId, } = props;
-    const [timer, setTimer] = useState(30);
+    const [timer, setTimer] = useState(5);
     useEffect(() => {
         timer > 0 && setTimeout(() => setTimer(timer - 1), 1000);
         if (timer === 0) {
@@ -70,6 +72,7 @@ function Timer(props) {
         </>
     )
 }
+
 // receive message from server
 socket.on('received-message', (receivedMessage, socketId, status) => {
     //message from server
@@ -160,7 +163,24 @@ function GameRoom(props) {
     const formatResult = (item) => {
         return (
             <>
-                <span style={{ display: 'block', textAlign: 'left'}}>{item}</span>
+                <span style={{ display: 'block', textAlign: 'left' }}>{item}</span>
+            </>
+        )
+    }
+    const [showPopover, setPopover] = useState(false)
+
+    function copyToClipboard(roomId) {
+        navigator.clipboard.writeText(roomId);
+        setPopover(true)
+        setTimeout(() => {
+            setPopover(false);
+        }, 2000);
+    }
+
+    function CopyPopover() {
+        return (
+            <>
+                <div>Copied to clipboard!</div>
             </>
         )
     }
@@ -168,72 +188,84 @@ function GameRoom(props) {
         <>
             {open && (
                 <>
-                    <div className=''>
+                    <div className='h-full'>
                         <div className=' text-green-800 font-bold'>
                         </div>
-                        <div className='flex flex-col sm:flex-row '>
-                            <div className='border-2 order-2 sm:order-1 border-zinc-600 sm:w-1/4 h-4/5 mx-4 sm:m-8 px-4 py-2  font-semibold'>
+                        <div className='flex flex-col lg:flex-row h-full '>
+                            <div className='border-2 order-2 lg:order-1 border-zinc-600 bg-zinc-700 lg:w-1/4 h-min mx-4 lg:m-8 px-4 py-2 mt-4 rounded-lg font-semibold lg:min-h-[200px]'>
                                 {users === "" ? "" : <ul className='flex flex-col'>
                                     {users.map((item, index) => {
                                         return <li className='flex justify-between' key={index}><div className='underline underline-offset-1 tracking-wide'>{item}</div> <div className='mr-3 text-green-500'> {showPoints(item)}</div></li>
                                     })}
                                 </ul>}
                             </div>
-                            <div className='flex flex-col order-1 items-center pt-6 w-full h-full'>
-                                <div className='flex flex-col items-center w-4/5 sm:w-3/5 h-1/4 sm:h-3/6'>
-                                    {isLoading
-                                        ?
-                                        <>
-                                            {prevMovie ? 'The movie was ' + prevMovie : ""}
-                                            <Loader />
-                                        </>
-                                        :
-                                        <>
-                                            {img === undefined ? "" : <img className=' rounded-md border-2 border-zinc-400' src={"https://www.themoviedb.org/t/p/original" + img} alt=""></img>}
-                                        </>
-                                    }
-                                </div>
-                                <div className='flex-col sm:flex-row w-full sm:w-4/5 flex p-4 sm:p-16 gap-2 sm:fixed sm:bottom-14'>
-                                    <div className='w-full sm:w-3/5 justify-start'>
-                                        <h2>Room ID: {roomId}</h2>
-                                        <div id='message-container' className='border-2 border-zinc-600 h-40 overflow-y-auto bg-zinc-700'>
-                                        </div>
-                                        <form className='flex flex-row' onSubmit={handleMessageSubmit}>
-                                            <div className='w-11/12 border-2 border-zinc-600 bg-zinc-700'
-                                                onChange={(e) => setMessage(e.target.value)}
-                                                id='message-input'
-                                                type="text">
-                                                <ReactSearchAutocomplete
-                                                    inputSearchString={message}
-                                                    items={movieNames}
-                                                    onSelect={handleOnSelect}
-                                                    // onSearch={handleOnSearch}
-                                                    // onHover={handleOnHover}
-                                                    // onFocus={handleOnFocus}
-                                                    // formatResult={formatResult}
-                                                    showIcon={false}
-                                                    maxResults={3}
-                                                    styling={{
-                                                        height: "34px",
-                                                        border: "1px solid black",
-                                                        borderRadius: "4px",
-                                                        backgroundColor: "gray-500",
-                                                        hoverBackgroundColor: "gray",
-                                                        color: "black",
-                                                        fontSize: "14px",
-                                                        iconColor: "black",
-                                                        lineColor: "black",
-                                                        placeholderColor: "black",
-                                                        clearIconMargin: "3px 8px 0 0",
-                                                        zIndex: 2,
-                                                    }}
-                                                />
+                            <div className='flex flex-col order-1 items-center pt-6 w-full h-fit lg:h-full'>
+                                <div className='flex flex-col items-center w-full h-fit lg:h-full'>
+                                    <div className='flex flex-col justify-center items-center w-10/12 lg:w-7/12 h-full max-h-full max-w-full'>
+                                        {isLoading
+                                            ?
+                                            <div className='flex flex-col items-center h-full w-full lg:w-fit'>
+                                                {prevMovie ? 'The movie was ' + prevMovie : ""}
+                                                <Loader />
                                             </div>
-                                            <input type="submit" value="Send" className='w-1/12 min-w-fit bg-zinc-700 hover:bg-gray-700 text-gray-300 font-semibold hover:text-white py-1 px-4 border border-gray-900 rounded' />
-                                        </form>
+                                            :
+                                            <div className=' w-full lg:w-fit '>
+                                                {img === undefined ? "" : <img className='h-full w-full object-contain rounded-md border-2 border-zinc-400' src={"https://www.themoviedb.org/t/p/original" + img} alt=""></img>}
+                                            </div>
+                                        }
                                     </div>
-                                    <div className=' border-2 border-slate-800 mt-6 h-24 sm:h-40 w-full sm:w-2/5 max-w-sm bg-zinc-700'>
-                                        {isTimer ? <Timer movieName={movieName} roomId={roomId} /> : <p className='flex justify-center'>Get ready for next movie!</p>}
+                                </div>
+                                <div className='flex-col lg:flex-col w-full lg:w-full flex lg:pt-0 gap-1 px-6 max-h-96'>
+                                    <div className='flex items-end h-12'>
+                                        <div className='flex flex-row ml-4'><p className='font-semibold mr-2'>Room ID: </p>{roomId}</div>
+                                        <div className='flex-col flex justify-start ml-2'>
+                                            {showPopover && <CopyPopover data={roomId} />}
+                                            <button onClick={() => copyToClipboard(roomId)}><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                            </svg></button>
+                                        </div>
+                                    </div>
+                                    <div className='flex-row lg:flex-row w-full flex gap-2 lg:mb-16'>
+                                        <div className='w-full lg:w-3/5 justify-start'>
+                                            <div id='message-container' className='border-2 rounded-t-xl p-2 border-zinc-600 h-40 overflow-y-auto bg-zinc-700'>
+                                            </div>
+                                            <form className='flex flex-row' onSubmit={handleMessageSubmit}>
+                                                <div className='w-11/12 border-2 border-zinc-600 bg-zinc-700'
+                                                    onChange={(e) => setMessage(e.target.value)}
+                                                    id='message-input'
+                                                    type="text">
+                                                    <ReactSearchAutocomplete
+                                                        inputSearchString={message}
+                                                        items={movieNames}
+                                                        onSelect={handleOnSelect}
+                                                        // onSearch={handleOnSearch}
+                                                        // onHover={handleOnHover}
+                                                        // onFocus={handleOnFocus}
+                                                        // formatResult={formatResult}
+                                                        showIcon={false}
+                                                        maxResults={3}
+                                                        styling={{
+                                                            height: "34px",
+                                                            border: "1px solid black",
+                                                            borderRadius: "4px",
+                                                            backgroundColor: "gray-500",
+                                                            hoverBackgroundColor: "gray",
+                                                            color: "black",
+                                                            fontSize: "14px",
+                                                            iconColor: "black",
+                                                            lineColor: "black",
+                                                            placeholderColor: "black",
+                                                            clearIconMargin: "3px 8px 0 0",
+                                                            zIndex: 2,
+                                                        }}
+                                                    />
+                                                </div>
+                                                <input type="submit" value="Send" className='w-1/12 min-w-fit bg-zinc-700 hover:bg-gray-700 text-gray-300 font-semibold hover:text-white py-1 px-4 border border-gray-900 rounded' />
+                                            </form>
+                                        </div>
+                                        <div className='border-2 rounded-xl border-slate-800 h-24 lg:h-40 w-2/5 lg:w-2/5 bg-zinc-700'>
+                                            {isTimer ? <Timer movieName={movieName} roomId={roomId} /> : <p className='flex justify-center'>Get ready for next movie!</p>}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
