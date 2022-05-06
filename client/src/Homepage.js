@@ -27,9 +27,8 @@ export default function Homepage() {
             <div className=' bg-zinc-800 w-full h-full text-white'>
                 <div id='button-container' className='flex flex-col gap-4 items-center pt-24 min-h-full bg-black opacity-80 text-white'>
                     <img className='p-10' src={logo} alt=""></img>
-                    <button className=' w-24 border-2 border-white hover:bg-white hover:text-black' onClick={handleOnClickAlert}>Play Solo</button>
+                    {/* <button className=' w-24 border-2 border-white hover:bg-white hover:text-black' onClick={handleOnClickAlert}>Play Solo</button> */}
                     <JoinModal parentCallback={handleCallback} usernameCallback={handleUsernameCallback} gameRoomCallback={onClickHandle} />
-
                 </div>
                 <GameRoom open={open} roomId={roomId} username={username} />
             </div>

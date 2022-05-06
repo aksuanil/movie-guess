@@ -6,12 +6,11 @@ function App() {
 
   return (
     <>
-      {/* <body class="debug-screens" /> */}
-      <div className='flex flex-col h-screen max-h-screen overflow-hidden'>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+      <body className='flex flex-col h-screen max-h-screen overflow-hidden'>
         <Header />
         <Homepage />
-      </div>
+      </body>
     </>
   )
 }

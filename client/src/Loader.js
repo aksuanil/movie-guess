@@ -16,6 +16,7 @@ export default function Loader() {
                 </div>
             </div>
             <span className="mt-4 sm:mt-12 text-center">{counter} <br />Searching movies you haven't seen...</span>
-        </>)
+        </>
+        )
 }
 

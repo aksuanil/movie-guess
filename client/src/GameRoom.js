@@ -4,8 +4,6 @@ import Loader from './Loader';
 import 'tw-elements';
 import { ReactSearchAutocomplete } from 'react-reusable-autocomplete'
 import movieNamesList from './assets/MovieNames.js'
-import { Popover } from '@headlessui/react'
-
 
 let isFirstTime = true;
 let isFirst = true
@@ -160,13 +158,6 @@ function GameRoom(props) {
         setMessage(item.name)
     };
 
-    const formatResult = (item) => {
-        return (
-            <>
-                <span style={{ display: 'block', textAlign: 'left' }}>{item}</span>
-            </>
-        )
-    }
     const [showPopover, setPopover] = useState(false)
 
     function copyToClipboard(roomId) {
@@ -215,7 +206,7 @@ function GameRoom(props) {
                                         }
                                     </div>
                                 </div>
-                                <div className='flex-col lg:flex-col w-full lg:w-full flex lg:pt-0 gap-1 px-6 max-h-96'>
+                                <div className='flex-col lg:mb-14 lg:flex-col w-full lg:w-full flex lg:pt-0 gap-1 px-6 max-h-96'>
                                     <div className='flex items-end h-12'>
                                         <div className='flex flex-row ml-4'><p className='font-semibold mr-2'>Room ID: </p>{roomId}</div>
                                         <div className='flex-col flex justify-start ml-2'>

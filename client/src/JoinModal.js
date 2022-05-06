@@ -67,14 +67,14 @@ export default function JoinModal(props) {
                             {/* Overlay's transition */}
                             <Transition.Child
                                 as={Fragment}
-                                enter="ease-out duration-300"
+                                enter="ease-out duration-600"
                                 enterFrom="opacity-0"
-                                enterTo="opacity-100"
-                                leave="ease-in duration-200"
+                                enterTo="opacity-70"
+                                leave="ease-in duration-500"
                                 leaveFrom="opacity-100"
                                 leaveTo="opacity-0"
                             >
-                                <Dialog.Overlay className="fixed inset-0 bg-zinc-800" />
+                                <Dialog.Overlay className="fixed inset-0 bg-zinc-800 opacity-80" />
                             </Transition.Child>
 
                             {/* This element is to trick the browser into centering the modal contents. */}
@@ -87,10 +87,10 @@ export default function JoinModal(props) {
                             {/* Modal's transition */}
                             <Transition.Child
                                 as={Fragment}
-                                enter="ease-out duration-300"
+                                enter="ease-out duration-600"
                                 enterFrom="opacity-0 scale-95"
                                 enterTo="opacity-100 scale-100"
-                                leave="ease-in duration-200"
+                                leave="ease-in duration-400"
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
@@ -140,7 +140,7 @@ export default function JoinModal(props) {
                                                 type="text"
                                                 name="username"
                                                 placeholder="Enter username"
-                                                required 
+                                                required
                                             />
                                             <button type="submit" className='border-black border-2 hover:bg-black hover:text-white mt-2 w-32 rounded-sm'>Create Room</button>
                                         </div>
@@ -156,7 +156,7 @@ export default function JoinModal(props) {
                                                 type="text"
                                                 name="username"
                                                 placeholder="Enter username"
-                                                required 
+                                                required
                                             />
                                             <input
                                                 className='text-center border-2 border-gray-600 mt-2'
@@ -168,13 +168,11 @@ export default function JoinModal(props) {
                                         </div>
 
                                     </form>
-                                    <div className="absolute top-0 right-2 m-1">
-                                        <button
-                                            onClick={closeModal}
-                                        >
-                                            Close
-                                        </button>
-                                    </div>
+                                    <button className="absolute top-0 right-2 m-1"
+                                        onClick={closeModal}
+                                    >
+                                        Close
+                                    </button>
                                 </div>
                             </Transition.Child>
                         </div>
